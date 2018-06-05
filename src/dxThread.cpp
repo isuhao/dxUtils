@@ -26,8 +26,9 @@
 #include <cstring>
 #include <glog/logging.h>
 #include <pthread.h>
+namespace dx {
 
-DxThread::DxThread(std::string name)
+Thread::Thread(std::string name)
     : m_state(DxThreadState::ThreadNEW)
 {
     size_t maxNameLen = sizeof(m_name) - 1; // one for NULL terminator!
@@ -37,11 +38,11 @@ DxThread::DxThread(std::string name)
     m_name[nameLen] = 0; // NULL terminator
 }
 
-DxThread::~DxThread()
+Thread::~Thread()
 {
 }
 
-int DxThread::start(std::function<void(void)> func, std::string name)
+int Thread::start(std::function<void(void)> func, std::string name)
 {
     if ((ThreadNEW == m_state) || (ThreadTERMINATED == m_state)) {
         m_state = ThreadRUNNABLE;
@@ -58,7 +59,7 @@ int DxThread::start(std::function<void(void)> func, std::string name)
     return 0;
 }
 
-int DxThread::start(std::function<void(void)> func, std::string name, int policy, int priority)
+int Thread::start(std::function<void(void)> func, std::string name, int policy, int priority)
 {
     if ((ThreadNEW == m_state) || (ThreadTERMINATED == m_state)) {
         m_state = ThreadRUNNABLE;
@@ -76,7 +77,7 @@ int DxThread::start(std::function<void(void)> func, std::string name, int policy
     return 0;
 }
 
-int DxThread::stop()
+int Thread::stop()
 {
     m_terminationRequest = true;
     m_wakeupSignal.send();
@@ -87,7 +88,7 @@ int DxThread::stop()
     return 0;
 }
 
-int DxThread::setName(std::string name)
+int Thread::setName(std::string name)
 {
     size_t maxNameLen = sizeof(m_name) - 1; // one for NULL terminator!
     size_t nameLen = (name.length() > (maxNameLen)) ? maxNameLen : name.length();
@@ -99,19 +100,19 @@ int DxThread::setName(std::string name)
     return pthread_setname_np(pth, m_name) == 0;
 }
 
-int DxThread::sleep(std::vector<std::reference_wrapper<DxSignal> > wakeUpSignals, int timeout)
+int Thread::sleep(std::vector<std::reference_wrapper<Signal> > wakeUpSignals, int timeout)
 {
     if (ThreadRUNNABLE != m_state) {
         LOG(ERROR) << "Thread(" << m_name << "): not in runnable state";
     }
     wakeUpSignals.push_back(m_wakeupSignal);
     m_state = ThreadWAITING;
-    int retval = DxSignal::waitMultiple(wakeUpSignals, timeout);
+    int retval = Signal::waitMultiple(wakeUpSignals, timeout);
     m_state = ThreadRUNNABLE;
     return retval;
 }
 
-bool DxThread::isRunning()
+bool Thread::isRunning()
 {
     bool isTerminared = (ThreadTERMINATED == m_state);
     bool isNew = (ThreadNEW == m_state);
@@ -119,13 +120,13 @@ bool DxThread::isRunning()
     return !m_terminationRequest && !isNew && !isTerminared;
 }
 
-void DxThread::setExitState(int status)
+void Thread::setExitState(int status)
 {
     UNUSED(status);
     this->m_state = ThreadTERMINATED;
 }
 
-int DxThread::setPriority(int newPolicy, int newPriority)
+int Thread::setPriority(int newPolicy, int newPriority)
 {
     sched_param sch;
 
@@ -145,7 +146,7 @@ int DxThread::setPriority(int newPolicy, int newPriority)
     return 0;
 }
 
-int DxThread::getPriority(int& policy, int& priority)
+int Thread::getPriority(int& policy, int& priority)
 {
     sched_param sch;
 
@@ -156,3 +157,5 @@ int DxThread::getPriority(int& policy, int& priority)
 
     return 0;
 }
+
+}   // namespace dx

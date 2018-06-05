@@ -23,6 +23,7 @@
 #include <errno.h>
 #include <signal.h>
 
+namespace dx {
 bool DxSignalHandler::m_gotExitSignal = false;
 
 DxSignalHandler::DxSignalHandler()
@@ -52,9 +53,10 @@ void DxSignalHandler::exitSignalHandler(int _ignored)
 void DxSignalHandler::setupSignalHandlers()
 {
     if (signal((int)SIGINT, DxSignalHandler::exitSignalHandler) == SIG_ERR) {
-        throw DxSignalException("!!!!! Error setting up signal handlers !!!!!");
+        throw SignalException("!!!!! Error setting up signal handlers !!!!!");
     }
     if (signal((int)SIGTERM, DxSignalHandler::exitSignalHandler) == SIG_ERR) {
-        throw DxSignalException("!!!!! Error setting up signal handlers !!!!!");
+        throw SignalException("!!!!! Error setting up signal handlers !!!!!");
     }
+}
 }

@@ -30,14 +30,16 @@
 #include <thread>
 #include <vector>
 
-class DxThread {
+namespace dx {
+
+class Thread {
 public:
-    DxThread(std::string name = "none");
-    ~DxThread();
+    Thread(std::string name = "none");
+    ~Thread();
 
     //DxThread() noexcept = default;
-    DxThread(DxThread&) = delete;
-    DxThread(const DxThread&) = delete;
+    Thread(Thread&) = delete;
+    Thread(const Thread&) = delete;
 
     int start(std::function<void(void)> func, std::string name = "Unknown");
     int start(std::function<void(void)> func, std::string name, int policy, int priority);
@@ -54,7 +56,7 @@ public:
     //        return 0;
     //    }
 
-    int sleep(std::vector<std::reference_wrapper<DxSignal> > wakeUpSignals, int timeout);
+    int sleep(std::vector<std::reference_wrapper<Signal> > wakeUpSignals, int timeout);
 
     bool isRunning();
 
@@ -77,5 +79,7 @@ private:
     DxThreadState m_state;
     bool m_terminationRequest = false;
     std::thread m_thread;
-    DxSignal m_wakeupSignal;
+    Signal m_wakeupSignal;
 };
+
+}   // namespace dx

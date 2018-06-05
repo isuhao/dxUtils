@@ -23,6 +23,8 @@
 
 #include "readerwriterqueue.h"
 
+namespace dx {
+
 template <typename T>
 class DxQueue {
 
@@ -75,3 +77,5 @@ public:
 private:
     moodycamel::ReaderWriterQueue<T>* queue;
 };
+
+}   // namespace dx

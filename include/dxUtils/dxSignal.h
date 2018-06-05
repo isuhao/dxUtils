@@ -25,6 +25,8 @@
 #include <functional>
 
 
+namespace dx {
+
 const int SignalPOLLIN    = (1<<1); /* There is data to read.  */
 const int SignalPOLLPRI   = (1<<2); /* There is urgent data to read.  */
 const int SignalPOLLOUT   = (1<<3); /* Writing now will not block.  */
@@ -32,30 +34,32 @@ const int SignalPOLLERR   = (1<<4); /* Error condition.  */
 const int SignalPOLLHUP   = (1<<5); /* Hung up.  */
 const int SignalPOLLNVAL  = (1<<6); /* Invalid polling request.  */
 
-class DxSignal {
+class Signal{
 public:
 
-    DxSignal();
-    DxSignal(int fd, int pollType = SignalPOLLIN);
-    ~DxSignal();
+    Signal();
+    Signal(int fd, int pollType = SignalPOLLIN);
+    ~Signal();
 
 
     int getFd();
     int send();
     bool wait(int timeout);
 
-    static int waitMultiple(std::vector<std::reference_wrapper<DxSignal> > sigs, int timeout);
+    static int waitMultiple(std::vector<std::reference_wrapper<Signal> > sigs, int timeout);
 
 
 private:
     // Copy
-    DxSignal(const DxSignal& that) = delete;
+    Signal(const Signal& that) = delete;
     // Move
-    DxSignal(const DxSignal&& that) = delete;
-    DxSignal& operator=(const DxSignal&) = delete;
+    Signal(const Signal&& that) = delete;
+    Signal& operator=(const Signal&) = delete;
 
     int m_readFd = -1;
     int m_writeFd = -1;
     bool m_isOwnFd = true;
     int m_pollType = SignalPOLLIN;
 };
+
+}   // namespace dx

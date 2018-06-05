@@ -30,9 +30,10 @@
 #include <sys/poll.h>
 #include <unistd.h>
 
-using namespace std;
 
-DxSignal::DxSignal()
+namespace dx {
+
+Signal::Signal()
 {
     int pipefd[2];
     int retval = pipe(pipefd);
@@ -45,7 +46,7 @@ DxSignal::DxSignal()
     m_writeFd = pipefd[1]; // pipefd[1] refers to the write end of the pipe.
 }
 
-DxSignal::DxSignal(int fd, int pollType)
+Signal::Signal(int fd, int pollType)
 {
     m_pollType = pollType;
     m_isOwnFd = false;
@@ -53,7 +54,7 @@ DxSignal::DxSignal(int fd, int pollType)
     m_readFd = fd;
 }
 
-DxSignal::~DxSignal()
+Signal::~Signal()
 {
     if (m_isOwnFd) {
         close(m_readFd);
@@ -61,12 +62,12 @@ DxSignal::~DxSignal()
     }
 }
 
-int DxSignal::getFd()
+int Signal::getFd()
 {
     return m_readFd;
 }
 
-int DxSignal::send()
+int Signal::send()
 {
     if (0 > m_writeFd) {
         return -1;
@@ -82,12 +83,12 @@ int DxSignal::send()
     return -1;
 }
 
-bool DxSignal::wait(int timeout)
+bool Signal::wait(int timeout)
 {
     return waitMultiple({ *this }, timeout);
 }
 
-int DxSignal::waitMultiple(std::vector<std::reference_wrapper<DxSignal> > sigs, int timeout)
+int Signal::waitMultiple(std::vector<std::reference_wrapper<Signal> > sigs, int timeout)
 {
     int signalCount = sigs.size();
     struct pollfd ufds[20];
@@ -133,3 +134,5 @@ int DxSignal::waitMultiple(std::vector<std::reference_wrapper<DxSignal> > sigs, 
 
     return -1;
 }
+
+}   // namespace dx

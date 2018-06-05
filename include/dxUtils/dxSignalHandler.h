@@ -23,11 +23,12 @@
 
 #include <stdexcept>
 
-using std::runtime_error;
 
-class DxSignalException : public runtime_error {
+namespace dx {
+
+class SignalException : public std::runtime_error::runtime_error {
 public:
-    DxSignalException(const std::string& _message)
+    SignalException(const std::string& _message)
         : std::runtime_error(_message)
     {
     }
@@ -45,3 +46,5 @@ public:
 protected:
     static bool m_gotExitSignal;
 };
+
+}   // namespace dx
